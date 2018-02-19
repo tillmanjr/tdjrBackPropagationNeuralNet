@@ -1,0 +1,19 @@
+{
+  "name": "tdjrbackpropagationneuralnet",
+  "version": "1.0.0",
+  "description": "Simple straightforward JavaScript neural network to explore implementing Back Propagation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tillmanjr/tdjrBackPropagationNeuralNet.git"
+  },
+  "author": "Tillman Dickson, Jr.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tillmanjr/tdjrBackPropagationNeuralNet/issues"
+  },
+  "homepage": "https://github.com/tillmanjr/tdjrBackPropagationNeuralNet#readme"
+}
