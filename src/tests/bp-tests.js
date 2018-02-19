@@ -22,7 +22,7 @@ var trainBackPropagationNeuralNet = require('../trainBackPropagationNeuralNet')
 const testBp = (logResultsFn, logMessageFn) => {
   try
   {
-    logMessageFn('\nBegin Neural Network training using Back-Propagation demo\n');
+    logMessageFn('\nBegin Neural Network training using Back-Propagation test\n');
     const inputValues = [ 1.0, -2.0, 3.0 ] 
     const targetValues = [ 0.1234, 0.8766 ]
 
