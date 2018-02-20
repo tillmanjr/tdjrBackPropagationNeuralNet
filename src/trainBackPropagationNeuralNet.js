@@ -21,24 +21,31 @@ const trainBackPropagationNeuralNet = (
     let outputValues = []
     
     let epoch = 0
-    let error = Number.MAX_SAFE_INTEGER
+    let errorMargin = Number.MAX_SAFE_INTEGER
+    let success = false
 
     if (logMessageFn) logMessageFn('\nBeginning training using back-propagation\n')
 
     while (epoch < maxEpochs) // Train
     {
       outputValues = neuralNet.computeOutputs(inputValues)
-      error = computeError(targetValues, outputValues)
-      if (error < errorThreshold)
+      errorMargin = computeError(targetValues, outputValues)
+      if (errorMargin < errorThreshold)
       {
         if (logMessageFn) logMessageFn('Found weights and bias values at epoch ' + epoch)
+        success = true
         break;
       }
       neuralNet.updateWeights(targetValues, learnRate, learnRate)
       ++epoch
     }
 
-    return neuralNet
+    return {
+      neuralNet,
+      success,
+      epochUsed: epoch,
+      errorMargin
+    }
 }
 
 module.exports = trainBackPropagationNeuralNet;
