@@ -50,18 +50,24 @@ class BackPropagationNeuralNet {
     this.outputPrevBiasesDelta = prefilledVector(outputCount, DEFAULT_VECTOR_PREFILL_VALUE)
   }
 
+  getWeightsCount() {
+    // weights[] is ordered: input-to-hidden wts, hidden biases, hidden-to-output wts, output biases
+    return  ( this.inputCount * this.hiddenCount ) +
+            ( this.hiddenCount * this.outputCount ) +
+              this.hiddenCount +
+              this.outputCount;
+  }
+
+  checkWeightsCount( weights ) {
+    return this.getWeightsCount() === weights.length;
+  }
+
   setWeights(
     weights // assumes weights[] has order of: input-to-hidden wts, hidden biases, hidden-to-output wts, output biases
-  ) {    
-    const countWeights = 
-      (this.inputCount * this.hiddenCount) +
-      (this.hiddenCount * this.outputCount) +
-      this.hiddenCount +
-      this.outputCount;
-    
-      if (weights.length != countWeights) {      
+  ) { 
+    if (!this.checkWeightsCount(weights)) {      
       throw new InvalidModelException(`The weights array length: ${weights.length} 
-        does not match the total number of weights and biases: ${countWeights}`)
+        does not match the total number of weights and biases`)
     }
 
     let k = 0; // pointer into weights param
@@ -82,11 +88,16 @@ class BackPropagationNeuralNet {
   }
 
   getWeights() {
+
+    /*
     const weightsCount = 
       (this.inputCount * this.hiddenCount) +
       (this.hiddenCount * this.outputCount) +
       this.hiddenCount +
       this.outputCount
+    */
+
+    const weightsCount = this.getWeightsCount()
     
     const result = prefilledVector(weightsCount, 0.0)
 

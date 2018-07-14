@@ -21,7 +21,7 @@ const logResultsFn = (message) => console.log(message)
 runAll()
 
 // enable next line to see details of training run
-testBp(logResultsFn, logMessageFn)
+// testBp(logResultsFn, logMessageFn)
 
 // enable next line to see only results of training run
-// testBp(logResultsFn, logNullFn)
+testBp(logResultsFn, logNullFn)
