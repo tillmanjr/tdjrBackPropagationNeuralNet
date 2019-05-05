@@ -65,7 +65,6 @@ class BackPropagationNeuralNet {
     return this.getWeightsCount() === weights.length;
   }
 
-  // TODO: pipeline this functionality
   setWeights(
     weights // assumes weights[] has order of: input-to-hidden wts, hidden biases, hidden-to-output wts, output biases
   ) {
@@ -76,74 +75,14 @@ class BackPropagationNeuralNet {
 
     let k = 0; // pointer into weights param
 
-    for (var i = 0; i < this.inputCount; ++i)
-      for (var j = 0; j < this.hiddenCount; ++j)
-        this.inputHiddenWeights[i][j] = weights[k++]
+    k = this._weightInputHiddenWeights(k, weights)
 
-    for (var i = 0; i < this.hiddenCount; ++i)
-      this.hiddenBiases[i] = weights[k++]
+    k = this._weightHiddenBiases(k, weights)
 
-    for (var i = 0; i < this.hiddenCount; ++i)
-      for (var j = 0; j < this.outputCount; ++j)
-        this.hiddenOutputWeights[i][j] = weights[k++]
+    k = this._weightHiddenOutputWeights(k, weights)
 
-    for (var i = 0; i < this.outputCount; ++i)
-      this.outputBiases[i] = weights[k++]
+    this._weightHiddenOutputs(k, weights)
   }
-
-  /* #region  GetWeights support functions */
-  createCarrier(
-    array,
-    offset
-  ) {
-    return {
-      array,
-      offset
-    }
-  }
-
-  _reCalculateHiddenWeights( carrier ) {
-    let k = carrier.offset
-    for (var i = 0; i < this.inputHiddenWeights.length; ++i) {
-      for (var j = 0; j < this.inputHiddenWeights[0].length; ++j) {
-        carrier.array[k++] = this.inputHiddenWeights[i][j]
-      }
-    }
-    carrier.offset = k
-    return carrier
-  }
-  _recalculateHiddenBiases( carrier) {
-    let k = carrier.offset
-      for (var i = 0; i < this.hiddenBiases.length; ++i) {
-        carrier.array[k++] = this.hiddenBiases[i]
-      }
-    carrier.offset = k
-    return carrier
-  }
-  _recalculateHiddenOutoutWeights( carrier ){
-    let k = carrier.offset
-    for (var i = 0; i < this.hiddenOutputWeights.length; ++i) {
-      for (var j = 0; j < this.hiddenOutputWeights[0].length; ++j) {
-        carrier.array[k++] = this.hiddenOutputWeights[i][j]
-      }
-    }
-    carrier.offset = k
-    return carrier
-  }
-
-  _recalculateOutputBiases( carrier ){
-    let k = carrier.offset
-    for (var i = 0; i < this.outputBiases.length; ++i) {
-      carrier.array[k++] = this.outputBiases[i]
-    }
-    carrier.offset = k
-    return carrier
-  }
-
-  /* #endregion */
-
-
-
 
   getWeights() {
     const weightsCount = this.getWeightsCount()
@@ -163,6 +102,9 @@ class BackPropagationNeuralNet {
   getOutputs() {
     return cloneVector(this.outputs)
   }
+
+  /* #region  computeOutputs helper function: matrix and array functions */
+  // TODO: convert this set of methods to functions
 
   setArraySubrangeTo( array, start, count, value) {
     const end = start + count
@@ -216,9 +158,8 @@ class BackPropagationNeuralNet {
         copyTo[j] += copyFromArray[i] * copyFromMatrix[i][j]
   }
 
+  /* #endregion */
 
-
-  // TODO: now that this work, pipeline it
   computeOutputs(
     inputValues
   ) {
@@ -262,7 +203,6 @@ class BackPropagationNeuralNet {
     return result;
   }
 
-  // TODO: extract the iterations into tasks then pipeline them
   updateWeights (
     targetValues,
     learn,
@@ -273,23 +213,131 @@ class BackPropagationNeuralNet {
       throw new InvalidModelException('Target values not same Length as output in updateWeights');
 
     // 1. compute output gradients. assumes log-sigmoid!
-    for (var i = 0; i < this.outputGradients.length; ++i)
-    {
+    this._computeOutputGradients(targetValues)
+
+    // 2. compute hidden gradients. assumes tanh!
+    this._computeHiddenGradients()
+
+    // 3. update input to hidden weights (gradients must be computed right-to-left but weights can be updated in any order)
+    this._updateInputsToHiddenWeights (learn, momentum)
+
+    // 4. update hidden biases
+    this._updateHiddenBiases(learn, momentum)
+
+    // 5. update hidden to output weights
+    this._updateHiddenToOutputWeights (learn, momentum)
+
+    // 6. update hidden to output biases
+    this._updateHiddenToOutputBiases(learn, momentum)
+  }
+
+/* #region Computation helper methods */
+
+/* #region  setWeights helper functions */
+
+_weightInputHiddenWeights (k, weights) {
+  for (var i = 0; i < this.inputCount; ++i)
+    for (var j = 0; j < this.hiddenCount; ++j)
+      this.inputHiddenWeights[i][j] = weights[k++]
+  return k
+}
+
+_weightHiddenBiases (k, weights) {
+  for (var i = 0; i < this.hiddenCount; ++i)
+    this.hiddenBiases[i] = weights[k++]
+  return k
+}
+
+_weightHiddenOutputWeights (k, weights) {
+  for (var i = 0; i < this.hiddenCount; ++i)
+    for (var j = 0; j < this.outputCount; ++j)
+      this.hiddenOutputWeights[i][j] = weights[k++]
+  return k
+}
+
+_weightHiddenOutputs (k, weights) {
+  for (var i = 0; i < this.outputCount; ++i)
+    this.outputBiases[i] = weights[k++]
+  return k
+}
+
+/* #endregion */
+
+/* #region  getWeights helper functions */
+
+  // simple wrapper for an array and an offset
+  createCarrier(
+    array,
+    offset
+  ) {
+    return {
+      array,
+      offset
+    }
+  }
+
+  _reCalculateHiddenWeights( carrier ) {
+    let k = carrier.offset
+    for (var i = 0; i < this.inputHiddenWeights.length; ++i) {
+      for (var j = 0; j < this.inputHiddenWeights[0].length; ++j) {
+        carrier.array[k++] = this.inputHiddenWeights[i][j]
+      }
+    }
+    carrier.offset = k
+    return carrier
+  }
+  _recalculateHiddenBiases( carrier) {
+    let k = carrier.offset
+      for (var i = 0; i < this.hiddenBiases.length; ++i) {
+        carrier.array[k++] = this.hiddenBiases[i]
+      }
+    carrier.offset = k
+    return carrier
+  }
+  _recalculateHiddenOutoutWeights( carrier ){
+    let k = carrier.offset
+    for (var i = 0; i < this.hiddenOutputWeights.length; ++i) {
+      for (var j = 0; j < this.hiddenOutputWeights[0].length; ++j) {
+        carrier.array[k++] = this.hiddenOutputWeights[i][j]
+      }
+    }
+    carrier.offset = k
+    return carrier
+  }
+
+  _recalculateOutputBiases( carrier ){
+    let k = carrier.offset
+    for (var i = 0; i < this.outputBiases.length; ++i) {
+      carrier.array[k++] = this.outputBiases[i]
+    }
+    carrier.offset = k
+    return carrier
+  }
+
+  /* #endregion */
+
+/* #region  updateWeights calculation helper funtions */
+
+  // compute output gradients. assumes log-sigmoid!
+  _computeOutputGradients(targetValues) {
+    for (var i = 0; i < this.outputGradients.length; ++i) {
       const derivative = derivativeLogSigmoid(this.outputs[i])
       this.outputGradients[i] = derivative * (targetValues[i] - this.outputs[i]) // oGrad = (1 - O)(O) * (T-O)
     }
+  }
 
-    // 2. compute hidden gradients. assumes tanh!
-    for (var i = 0; i < this.hiddenGradients.length; ++i)
-    {
+  // 2. compute hidden gradients. assumes tanh!
+  _computeHiddenGradients() {
+    for (var i = 0; i < this.hiddenGradients.length; ++i) {
       const derivative = derivativeTanH(this.hiddenOutputs[i])
       let sum = 0.0;
       for (var j = 0; j < this.outputCount; ++j) // each hidden delta is the sum of outputCount terms
         sum += this.outputGradients[j] * this.hiddenOutputWeights[i][j]; // each downstream gradient * outgoing weight
       this.hiddenGradients[i] = derivative * sum; // hiddenGradient = (1-O)(1+O) * E(outputGradients*oWts)
     }
+  }
 
-    // 3. update input to hidden weights (gradients must be computed right-to-left but weights can be updated in any order)
+  _updateInputsToHiddenWeights (learn, momentum) {
     for (var i = 0; i < this.inputHiddenWeights.length; ++i) // 0..2 (3)
     {
       for (var j = 0; j < this.inputHiddenWeights[0].length; ++j) // 0..3 (4)
@@ -300,8 +348,9 @@ class BackPropagationNeuralNet {
         this.inputHiddenPrevWeightsDelta[i][j] = delta // save the delta for next time
       }
     }
+  }
 
-    // 4. update hidden biases
+  _updateHiddenBiases (learn, momentum) {
     for (var i = 0; i < this.hiddenBiases.length; ++i)
     {
       const delta = learn * this.hiddenGradients[i] * 1.0 // the 1.0 is the constant input for any bias; could leave out
@@ -309,8 +358,9 @@ class BackPropagationNeuralNet {
       this.hiddenBiases[i] += momentum * this.hiddenPrevBiasesDelta[i]
       this.hiddenPrevBiasesDelta[i] = delta // save delta
     }
+  }
 
-    // 5. update hidden to output weights
+  _updateHiddenToOutputWeights (learn, momentum) {
     for (var i = 0; i < this.hiddenOutputWeights.length; ++i)  // 0..3 (4)
     {
       for (var j = 0; j < this.hiddenOutputWeights[0].length; ++j) // 0..1 (2)
@@ -321,8 +371,9 @@ class BackPropagationNeuralNet {
         this.hiddenOutputPrevWeightsDelta[i][j] = delta
       }
     }
+  }
 
-    // 6. update hidden to output biases
+  _updateHiddenToOutputBiases (learn, momentum) {
     for (var i = 0; i < this.outputBiases.Length; ++i)
     {
       const delta = learn * this.outputGradients[i] * 1.0
@@ -331,6 +382,10 @@ class BackPropagationNeuralNet {
       this.outputPrevBiasesDelta[i] = delta
     }
   }
+
+/* #endregion */
+
+/* #endregion */
 
 }
 
