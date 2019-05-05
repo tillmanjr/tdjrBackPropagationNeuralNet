@@ -23,6 +23,7 @@ const DEFAULT_VECTOR_PREFILL_VALUE = 0.0
 
 class BackPropagationNeuralNet {
 
+  // TODO: extract computed properties into _init function
   constructor(inputCount, hiddenCount, outputCount) {
     this.inputCount = inputCount
     this.hiddenCount = hiddenCount
@@ -31,7 +32,7 @@ class BackPropagationNeuralNet {
     this.inputs = prefilledVector(inputCount, DEFAULT_VECTOR_PREFILL_VALUE)
 
     this.inputHiddenWeights = makeMatrix(inputCount, hiddenCount, 0.0)
-    
+
     this.hiddenBiases = prefilledVector(hiddenCount, DEFAULT_VECTOR_PREFILL_VALUE)
     this.hiddenSums = prefilledVector(hiddenCount, DEFAULT_VECTOR_PREFILL_VALUE)
     this.hiddenOutputs = prefilledVector(hiddenCount, DEFAULT_VECTOR_PREFILL_VALUE)
@@ -50,6 +51,7 @@ class BackPropagationNeuralNet {
     this.outputPrevBiasesDelta = prefilledVector(outputCount, DEFAULT_VECTOR_PREFILL_VALUE)
   }
 
+  // calculates and returns the WeightsCount taking into account all dimmensionalities
   getWeightsCount() {
     // weights[] is ordered: input-to-hidden wts, hidden biases, hidden-to-output wts, output biases
     return  ( this.inputCount * this.hiddenCount ) +
@@ -62,11 +64,12 @@ class BackPropagationNeuralNet {
     return this.getWeightsCount() === weights.length;
   }
 
+  // TODO: pipeline this functionality
   setWeights(
     weights // assumes weights[] has order of: input-to-hidden wts, hidden biases, hidden-to-output wts, output biases
-  ) { 
-    if (!this.checkWeightsCount(weights)) {      
-      throw new InvalidModelException(`The weights array length: ${weights.length} 
+  ) {
+    if (!this.checkWeightsCount(weights)) {
+      throw new InvalidModelException(`The weights array length: ${weights.length}
         does not match the total number of weights and biases`)
     }
 
@@ -87,9 +90,10 @@ class BackPropagationNeuralNet {
       this.outputBiases[i] = weights[k++]
   }
 
+  // TODO: pipeline this functionality
   getWeights() {
     const weightsCount = this.getWeightsCount()
-    
+
     const result = prefilledVector(weightsCount, 0.0)
 
     let k = 0;
@@ -121,6 +125,8 @@ class BackPropagationNeuralNet {
     return cloneVector(this.outputs)
   }
 
+
+  // TODO: now that this work, pipeline it
   computeOutputs(
     inputValues
   ) {
@@ -158,8 +164,9 @@ class BackPropagationNeuralNet {
 
     const result = cloneVector(this.outputs)
     return result;
-  } 
+  }
 
+  // TODO: extract the iterations into tasks then pipeline them
   updateWeights (
     targetValues,
     learn,
