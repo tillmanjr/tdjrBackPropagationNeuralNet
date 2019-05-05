@@ -16,10 +16,16 @@ const {
   computeError
 } = require('../libs/mathUtils')
 
-var BackPropagationNeuralNet = require('../backPropagationNeuralNet')
-var trainBackPropagationNeuralNet = require('../trainBackPropagationNeuralNet')
+// var BackPropagationNeuralNet = require('../neuralNets/backPropagationNeuralNet')
+// var trainBackPropagationNeuralNet = require('../neuralNets/trainBackPropagationNeuralNet')
+const {
+  BackPropagationNeuralNet
+ } = require('../neuralNets2')
+const {
+  trainBackPropagationNeuralNet
+ } = require('../neuralNets2')
 
-// returns an array of incrementing values 
+// returns an array of incrementing values
 const generateSequenceVector = (elementCount, startAt, incrementBy) => {
   const result = []
   let currValue = startAt
@@ -103,7 +109,7 @@ const emitTrainingResults = (logResultsFn, trainingResult, inputValues, hiddenCo
 const testBp = (logResultsFn, logMessageFn) => {
   try
   {
-    const inputValues = [ 1.0, -2.0, 3.0 ] 
+    const inputValues = [ 1.0, -2.0, 3.0 ]
     const targetValues = [ 0.1234, 0.8766 ]
 
     const inputCount = inputValues.length
@@ -119,10 +125,10 @@ const testBp = (logResultsFn, logMessageFn) => {
     logMessageFn('\nGenerating arbitrary initial weights and bias values')
     const initWeights = generateSequenceVector(weightsCount, 0.001, 0.001)
     emitWeightBiasesDetails(logMessageFn, initWeights, inputCount, hiddenCount, outputCount)
-    
+
     logMessageFn('Loading weights and biases into neural network')
-    bnn.setWeights(initWeights) 
-    
+    bnn.setWeights(initWeights)
+
     const trainingResult = trainBackPropagationNeuralNet(
       bnn,
       inputValues,

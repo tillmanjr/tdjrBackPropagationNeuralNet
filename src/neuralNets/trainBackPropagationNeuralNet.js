@@ -3,7 +3,7 @@
 const BackPropagationNeuralNet = require('./backPropagationNeuralNet')
 const {
   computeError
- } = require('./libs/mathUtils')
+ } = require('../libs/mathUtils')
 
 const trainBackPropagationNeuralNet = (
     neuralNet,
@@ -19,7 +19,7 @@ const trainBackPropagationNeuralNet = (
     if (initialWeights) neuralNet.setWeights(initialWeights)
 
     let outputValues = []
-    
+
     let epoch = 0
     let errorMargin = Number.MAX_SAFE_INTEGER
     let success = false

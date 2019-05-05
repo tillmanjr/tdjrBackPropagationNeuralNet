@@ -1,22 +1,22 @@
 "use strict;"
 
-const makeMatrix = require('./libs/matrixUtils')
+const makeMatrix = require('../libs/matrixUtils')
 
 const {
   derivativeLogSigmoid,
   derivativeTanH,
   sigmoid,
   hyperTan
-} = require('./libs/mathUtils')
+} = require('../libs/mathUtils')
 
 const {
   cloneVector,
   prefilledVector
-} = require('./libs/vectorUtils')
+} = require('../libs/vectorUtils')
 
 const {
   InvalidModelException
-} = require('./libs/exceptions')
+} = require('../libs/exceptions')
 
 const DEFAULT_VECTOR_PREFILL_VALUE = 0.0
 
