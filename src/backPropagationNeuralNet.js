@@ -88,15 +88,6 @@ class BackPropagationNeuralNet {
   }
 
   getWeights() {
-
-    /*
-    const weightsCount = 
-      (this.inputCount * this.hiddenCount) +
-      (this.hiddenCount * this.outputCount) +
-      this.hiddenCount +
-      this.outputCount
-    */
-
     const weightsCount = this.getWeightsCount()
     
     const result = prefilledVector(weightsCount, 0.0)
