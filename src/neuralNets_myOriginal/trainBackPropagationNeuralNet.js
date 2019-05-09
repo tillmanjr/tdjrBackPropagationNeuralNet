@@ -5,23 +5,17 @@ const {
   computeError
  } = require('../libs/mathUtils')
 
-
-const trainBackPropagationNeuralNet = (options) => {
-    // yeah, yeah, destructure the following option values
-    const neuralNet = options.neuralNet
-    const inputValues = options.inputValues
-    const targetValues = options.targetValues
-    const logMessageFn = options.logMessageFn
-    const initialWeights = options.initialWeights
-    const errorThreshold = options.errorThreshold
-    const learnRate = options.learnRate
-    // const momentum = options.momentum
-    const maxEpochs = options.maxEpochs
-
-    const log = (message) => {
-      if (logMessageFn) logMessageFn(message)
-    }
-
+const trainBackPropagationNeuralNet = (
+    neuralNet,
+    inputValues,
+    targetValues,
+    logMessageFn = null,
+    initialWeights = null, // if null assumes net contains initial weights, otherwise applies these
+    errorThreshold = 0.00001,
+    learnRate = 0.5,
+    momentum = 0.1,
+    maxEpochs = 1000
+  ) => {
     if (initialWeights) neuralNet.setWeights(initialWeights)
 
     let outputValues = []
@@ -30,7 +24,7 @@ const trainBackPropagationNeuralNet = (options) => {
     let errorMargin = Number.MAX_SAFE_INTEGER
     let success = false
 
-    log('\nBeginning training using back-propagation\n')
+    if (logMessageFn) logMessageFn('\nBeginning training using back-propagation\n')
 
     while (epoch < maxEpochs) // Train
     {
@@ -38,7 +32,7 @@ const trainBackPropagationNeuralNet = (options) => {
       errorMargin = computeError(targetValues, outputValues)
       if (errorMargin < errorThreshold)
       {
-        log('Found weights and bias values at epoch ' + epoch)
+        if (logMessageFn) logMessageFn('Found weights and bias values at epoch ' + epoch)
         success = true
         break;
       }
@@ -54,4 +48,4 @@ const trainBackPropagationNeuralNet = (options) => {
     }
 }
 
-module.exports = trainBackPropagationNeuralNet
+module.exports = trainBackPropagationNeuralNet;

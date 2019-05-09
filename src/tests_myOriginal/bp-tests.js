@@ -20,15 +20,10 @@ const {
 // var trainBackPropagationNeuralNet = require('../neuralNets/trainBackPropagationNeuralNet')
 const {
   BackPropagationNeuralNet
- } = require('../neuralNets2')
-
-const {
-  createTrainingOptions
-} = require('../neuralNets2');
-
+ } = require('../neuralNets_myOriginals')
 const {
   trainBackPropagationNeuralNet
- } = require('../neuralNets2')
+ } = require('../neuralNets_myOriginals')
 
 // returns an array of incrementing values
 const generateSequenceVector = (elementCount, startAt, incrementBy) => {
@@ -134,19 +129,12 @@ const testBp = (logResultsFn, logMessageFn) => {
     logMessageFn('Loading weights and biases into neural network')
     bnn.setWeights(initWeights)
 
-    const options = createTrainingOptions(
+    const trainingResult = trainBackPropagationNeuralNet(
       bnn,
       inputValues,
       targetValues,
       logMessageFn
     )
-
-    const trainingResult = trainBackPropagationNeuralNet(options)
-    //   bnn,
-    //   inputValues,
-    //   targetValues,
-    //   logMessageFn
-    // )
 
     emitTrainingResults(logResultsFn, trainingResult, inputValues, hiddenCount, outputCount)
 
