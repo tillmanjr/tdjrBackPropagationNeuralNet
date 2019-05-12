@@ -22,4 +22,26 @@ const createTrainingOptions = (
   }
 }
 
+
+class testTarget {
+  constructor (...options) {
+
+    console.log('testTarget : ', testTarget)
+  }
+
+}
+
+const testNet = {objIs: 'test neural net'}
+const testIputValues = {objIs: 'test inputValues'}
+const testTargetValues = {objIs: 'test targetValues'}
+const testlogMessageFn = {objIs: 'test logMessageFn'}
+const testOptions = createTrainingOptions(
+  testNet,
+  testIputValues,
+  testTargetValues,
+  testlogMessageFn
+)
+const foo = new testTarget(testOptions)
+console.log('foo : ', foo)
+
 module.exports = createTrainingOptions

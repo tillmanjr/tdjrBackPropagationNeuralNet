@@ -5,11 +5,11 @@ const {
   mathUtilsTests,
   formattedVectorTests,
   formattedMatrixTests
-} = require('./tests2/dev-tests')
+} = require('./tests/dev-tests')
 
 const {
   testBp
-} = require('./tests2/bp-tests')
+} = require('./tests/bp-tests')
 
 // use to ignore message
 const logNullFn = (message) => {return 0}
