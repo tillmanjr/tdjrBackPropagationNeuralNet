@@ -1,17 +1,32 @@
 "use strict;"
 
-// Computes the Sigmoid value of X
-const sigmoid = function (x) {
-  if (x < -45.0) return 0.0
-  if (x > 45.0) return 1.0
-  return 1.0 / (1.0 + Math.exp(-x))
-}
+const createBounds = require('./bounds').createBounds
 
-// Computes the HyperTan of X
-const hyperTan = function (x) {
-  if (x < -45.0) return -1.0;
-  if (x > 45.0) return 1.0;
-  return Math.tanh(x);
+// both hyperbolic tangent and the logistic function go constant
+// outside the range bounded by -45 and 45 degress
+const bounds = createBounds(-45.0, 45.0)
+
+// is x less than -45.0
+const isBelowBounds = x => bounds.isBelowBounds(x)
+
+// is value greaaterThan 45.0
+const isAboveBounds = x => bounds.isAboveBounds(x)
+
+// Computes a Sigmoid value for X using the logistic function
+const sigmoid = function (x) {
+  return isBelowBounds(x)
+        ? 0.0
+        : isAboveBounds(x)
+          ? 1.0
+          : 1.0 / (1.0 + Math.exp(-x))
+}
+// Computes the HyperbolicTangent of X (in degrees)
+const hyperTan = (x) => {
+  return isBelowBounds(x)
+        ? -1.0
+        : isAboveBounds(x)
+          ? 1.0
+          : Math.tanh(x)
 }
 
 // derivative of Tanh = (1 + y) * (1 - y)

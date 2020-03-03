@@ -10,11 +10,13 @@ function formatVector (
   appendBlankLine
 ) {
   let result = '';
-  
+
+  console.log('vectorArray : ', vectorArray)
+
   for (var i = 0; i < vectorArray.length; ++i) {
-    if (i > 0 && i % valuesPerLine == 0) // max of 12 values per row 
+    if (i > 0 && i % valuesPerLine == 0) // max of 12 values per row
       result += NEW_LINE_CHAR
-  
+
     const val = vectorArray[i]
     if (val >= 0.0) result += (' ');
 
@@ -27,7 +29,7 @@ function formatVector (
 }
 
 function formatMatrix (
-  matrix, // [row index 0..n][row values] 
+  matrix, // [row index 0..n][row values]
   numRows,
   fixedDecimals
 ) {
